@@ -1,0 +1,332 @@
+{
+  "name": "Automated Task Scheduler using n8n and Google Sheets",
+  "nodes": [
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "15BmFYJaYBmaUgip3NZPcPCGnxsx84f1AdE1WtHAs5Ic",
+          "mode": "list",
+          "cachedResultName": "TimeTableALarm",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/15BmFYJaYBmaUgip3NZPcPCGnxsx84f1AdE1WtHAs5Ic/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/15BmFYJaYBmaUgip3NZPcPCGnxsx84f1AdE1WtHAs5Ic/edit#gid=0"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.6,
+      "position": [
+        220,
+        0
+      ],
+      "id": "8630bee4-64b6-459d-8dcb-85f519048130",
+      "name": "Get row(s) in sheet",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "p6MkqT9s8Ocfwd8f",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "9976892c-0476-4db8-82df-c9358fd9e436",
+              "name": "now_time",
+              "value": "={{ $now.setZone(\"Asia/Kolkata\").format(\"HH:mm\") }}",
+              "type": "string"
+            },
+            {
+              "id": "1e8c83cf-0e42-4f4f-855c-fe1d390515ab",
+              "name": "now_ampm",
+              "value": "={{ $now.setZone(\"Asia/Kolkata\").format(\"a\").toLowerCase()}}",
+              "type": "string"
+            }
+          ]
+        },
+        "includeOtherFields": true,
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        440,
+        0
+      ],
+      "id": "795989e3-7e78-41ea-8fae-80c0848fd0c1",
+      "name": "Edit Fields"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "a1f0a8d2-232a-4063-bcb1-a52ea32d44cc",
+              "leftValue": "={{ $json.Time }}",
+              "rightValue": "={{ $json.now_time }}",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
+            },
+            {
+              "id": "95cffd27-c264-42d0-8078-c466fb2f5b91",
+              "leftValue": "={{ $json['am/pm'] }}",
+              "rightValue": "={{ $json.now_ampm }}",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        660,
+        0
+      ],
+      "id": "d88ebad3-bd67-44fc-b73f-faaa109b2725",
+      "name": "If"
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "documentId": {
+          "__rl": true,
+          "value": "15BmFYJaYBmaUgip3NZPcPCGnxsx84f1AdE1WtHAs5Ic",
+          "mode": "list",
+          "cachedResultName": "TimeTableALarm",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/15BmFYJaYBmaUgip3NZPcPCGnxsx84f1AdE1WtHAs5Ic/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/15BmFYJaYBmaUgip3NZPcPCGnxsx84f1AdE1WtHAs5Ic/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "row_number": "={{ $json.row_number }}",
+            "Status": "Completed",
+            "Last Updated": "={{ $now.setZone(\"Asia/Kolkata\").format(\"hh:mm A\") }}",
+            "Time": "={{ $json.Time }}",
+            "am/pm": "={{ $json['am/pm'] }}",
+            "Work name": "={{ $json['Work name'] }}"
+          },
+          "matchingColumns": [
+            "row_number"
+          ],
+          "schema": [
+            {
+              "id": "Time",
+              "displayName": "Time",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "am/pm",
+              "displayName": "am/pm",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Work name",
+              "displayName": "Work name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Status",
+              "displayName": "Status",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Last Updated",
+              "displayName": "Last Updated",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "row_number",
+              "displayName": "row_number",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "readOnly": true,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.6,
+      "position": [
+        880,
+        -100
+      ],
+      "id": "c5593063-7763-4c16-a237-77b34616c7c1",
+      "name": "Update row in sheet",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "p6MkqT9s8Ocfwd8f",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "from": "+17653055823",
+        "to": "+919346914743",
+        "message": "={{ $json['Work name'] }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.twilio",
+      "typeVersion": 1,
+      "position": [
+        1100,
+        -100
+      ],
+      "id": "3fbaeb0d-0c95-40dd-af7c-8e420eb078db",
+      "name": "Send an SMS/MMS/WhatsApp message",
+      "credentials": {
+        "twilioApi": {
+          "id": "PM8KtWy6mQdaSgJz",
+          "name": "Twilio account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "minutes"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        -20,
+        0
+      ],
+      "id": "b1affa5e-f801-40da-9a3c-068500da33c7",
+      "name": "Schedule Trigger"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Get row(s) in sheet": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields": {
+      "main": [
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If": {
+      "main": [
+        [
+          {
+            "node": "Update row in sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update row in sheet": {
+      "main": [
+        [
+          {
+            "node": "Send an SMS/MMS/WhatsApp message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Schedule Trigger": {
+      "main": [
+        [
+          {
+            "node": "Get row(s) in sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "310225a4-e4c0-48f6-8055-78d198c43edd",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "34bb4bd91349876654bf502ac66b1b18213e2a52b35398ed26156f1aee224eee"
+  },
+  "id": "3YM6DFd3TCmLbGL2",
+  "tags": []
+}
